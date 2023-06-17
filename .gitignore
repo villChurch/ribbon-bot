@@ -1,0 +1,7 @@
+.idea
+.vscode
+
+/src/main/resources/application.properties
+/docker-compose.yml
+/target/
+/epona-bot.iml
