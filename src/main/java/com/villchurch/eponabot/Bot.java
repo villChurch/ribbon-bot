@@ -1,8 +1,12 @@
 package com.villchurch.eponabot;
 
+import com.jagrosh.jdautilities.command.CommandClient;
+import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.villchurch.eponabot.Listeners.GuildMemberListener;
 import com.villchurch.eponabot.Listeners.InteractionListener;
 import com.villchurch.eponabot.Listeners.SlashListener;
+import com.villchurch.eponabot.slashcommands.EyeSpyCommands;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
@@ -15,7 +19,9 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.*;
 
@@ -26,15 +32,28 @@ public class Bot {
 
     @Value("${app.discord.bot.token}")
     private String token;
-
     public Bot() {
+
+        CommandClientBuilder client = new CommandClientBuilder();
+        client.addSlashCommands(GetSlashCommands());
+        client.setOwnerId("272151652344266762");
+        client.setActivity(Activity.playing("Watching ribbons"));
+//        client.forceGuildOnly("798239862477815819"); // for testing
+        CommandClient commandClient = client.build();
 
         jda = JDABuilder.createLight(token, EnumSet.noneOf(GatewayIntent.class))
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                         GatewayIntent.GUILD_MEMBERS)
-                .setActivity(Activity.playing("Watching ribbons"))
-                .addEventListeners(EponaBotApplication.eWaiter, new SlashListener(), new InteractionListener())
+                .setActivity(Activity.playing("Booting....."))
+                .addEventListeners(EponaBotApplication.eWaiter, new SlashListener(),
+                        new InteractionListener(), commandClient)
                 .build();
+    }
+
+    private SlashCommand[] GetSlashCommands() {
+        List<SlashCommand> commands = new ArrayList<>();
+        commands.add(new EyeSpyCommands());
+        return commands.toArray(new SlashCommand[0]);
     }
 
     public static void Setup() {
