@@ -28,3 +28,9 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.sticky (
     message text NOT NULL,
     messageid text
 );
+
+CREATE TABLE IF NOT EXISTS  eponaRibbon.eyespy (
+    id bigserial PRIMARY KEY,
+    userid text NOT NULL,
+    points INT
+)

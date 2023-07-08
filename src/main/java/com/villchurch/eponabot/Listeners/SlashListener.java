@@ -118,7 +118,8 @@ public class SlashListener extends ListenerAdapter {
                 }
                 break;
             default:
-                event.reply("I can't handle that command right now :(").setEphemeral(true).queue();
+//                event.reply("I can't handle that command right now :(").setEphemeral(true).queue();
+                break;
         }
     }
 
