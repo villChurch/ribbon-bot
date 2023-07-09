@@ -42,7 +42,7 @@ public class ProfileCommand extends SlashCommand {
             user = Objects.requireNonNull(slashCommandEvent.getOption("user")).getAsUser();
         }
         List<Ribbon> matchedRibbons = returnUsersRibbons(user.getId());
-        List<MessageEmbed> ribbons = returnRibbonEmbeds(matchedRibbons, slashCommandEvent.getUser());
+        List<MessageEmbed> ribbons = returnRibbonEmbeds(matchedRibbons, user);
         if (matchedRibbons.size() < 1) {
             slashCommandEvent.reply(user.getName() + " currently has no ribbons").queue();
         } else {
