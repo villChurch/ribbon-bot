@@ -18,7 +18,6 @@ public class EyeSpyCommands extends SlashCommand {
     public EyeSpyCommands() {
         this.name = "eye_spy";
         this.help= "eye spy commands";
-        this.userPermissions = new Permission[]{Permission.ADMINISTRATOR};
         this.children = new SlashCommand[] {new Leaderboard(), new Verify(), new Profile()};
     }
 
@@ -46,7 +45,7 @@ public class EyeSpyCommands extends SlashCommand {
         public Verify() {
             this.name = "award";
             this.help = "Award a person a point";
-            this.userPermissions = new Permission[]{Permission.KICK_MEMBERS};
+            this.userPermissions = new Permission[]{Permission.ADMINISTRATOR};
 
             List<OptionData> options = new ArrayList<>();
             options.add(new OptionData(OptionType.USER, "user", "user to give point to"));
