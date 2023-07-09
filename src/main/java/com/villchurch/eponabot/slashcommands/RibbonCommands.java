@@ -1,186 +1,275 @@
 package com.villchurch.eponabot.slashcommands;
 
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonEmbedPaginator;
 import com.villchurch.eponabot.EponaBotApplication;
-import com.villchurch.eponabot.Repositories.RibbonRepository;
-import com.villchurch.eponabot.Repositories.UserRibbonsRepository;
+import com.villchurch.eponabot.Helpers.RibbonHelper;
 import com.villchurch.eponabot.exceptions.RibbonNotFoundException;
 import com.villchurch.eponabot.models.Ribbon;
 import com.villchurch.eponabot.models.UserRibbons;
-import jakarta.annotation.PostConstruct;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.*;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 @Component
-public class RibbonCommands {
+public class RibbonCommands extends SlashCommand {
 
-    @Autowired
-    public RibbonRepository getRibbonRepository;
-    @Autowired
-    public UserRibbonsRepository getUserRibbonsRepository;
-
-    @PostConstruct
-    public void init() {
-        ribbonRepository = getRibbonRepository;
-        userRibbonsRepository = getUserRibbonsRepository;
+    public RibbonCommands() {
+        this.name = "ribbons";
+        this.help = "ribbon commands";
+        this.children = new SlashCommand[] {
+                new AddRibbon(),
+                new GiveRibbon(),
+                new TakeRibbon(),
+                new DeleteRibbon(),
+                new ShowRibbon(),
+                new AllRibbons(),
+                new ResetUser()
+        };
     }
 
-    public static RibbonRepository ribbonRepository;
+    public static class GiveRibbon extends SlashCommand {
 
-    public static UserRibbonsRepository userRibbonsRepository;
-
-
-    public static void AddRibbon(SlashCommandInteractionEvent event,
-                                 String ribbonImage, String ribbonName, String ribbonDescription) {
-        event.deferReply(true).queue();
-        Ribbon newRibbon = new Ribbon();
-        newRibbon.setName(ribbonName);
-        newRibbon.setPath(ribbonImage);
-        newRibbon.setDescription(Objects.requireNonNullElse(ribbonDescription, "no description"));
-        ribbonRepository.save(newRibbon);
-        event.getHook().sendMessage("Ribbon created successfully.").queue();
-    }
-
-    public static void GiveRibbon(SlashCommandInteractionEvent event, Integer ribbonId) throws RibbonNotFoundException {
-        event.reply("Choose the user/users to give the ribbon to")
-                .addActionRow(EntitySelectMenu.create("give_ribbon_" + ribbonId.toString(),
-                                EntitySelectMenu.SelectTarget.USER)
-                        .build())
-                .setEphemeral(true)
-                .queue();
-    }
-
-    public static void GiveRibbon(SlashCommandInteractionEvent event,
-                                  User member, String ribbonName) throws RibbonNotFoundException {
-        event.deferReply(true).queue();
-        Ribbon ribbonToGive = ribbonRepository.findByName(ribbonName).stream()
-                .findFirst().orElseThrow(() -> new RibbonNotFoundException(event, ribbonName));
-        AssignRibbon(member, ribbonToGive);
-        event.getHook().sendMessage(ribbonName + " given to " + member.getName())
-                .queue();
-    }
-
-    public static void GiveRibbon(SlashCommandInteractionEvent event, User member, Integer id) throws RibbonNotFoundException {
-        event.deferReply(true).queue();
-        Ribbon ribbonToGive = ribbonRepository.findById(Long.valueOf(id)).stream()
-                .findFirst().orElseThrow(() -> new RibbonNotFoundException(event, id.toString()));
-        AssignRibbon(member, ribbonToGive);
-        event.getHook().sendMessage(ribbonToGive.getName() + " given to " + member.getName())
-                .queue();
-    }
-
-    public static void AssignRibbon(User member, Integer ribbonId) throws RibbonNotFoundException {
-        Ribbon ribbon = ribbonRepository.findById(Long.valueOf(ribbonId)).stream()
-                .findFirst().orElseThrow(() -> new RibbonNotFoundException(ribbonId.toString()));
-        AssignRibbon(member, ribbon);
-    }
-
-    public static void AssignRibbon(User member, Ribbon ribbon) {
-        UserRibbons userRibbonMapping = new UserRibbons();
-        userRibbonMapping.setUserid(member.getId());
-        userRibbonMapping.setRibbonid(ribbon.getId());
-        userRibbonsRepository.save(userRibbonMapping);
-    }
-
-    public static void TakeRibbon(SlashCommandInteractionEvent event, User member,
-                                  String ribbonName) throws RibbonNotFoundException {
-        event.deferReply(true).queue();
-        Ribbon ribbonToTake = ribbonRepository.findByName(ribbonName).stream()
-                .findFirst().orElseThrow(() -> new RibbonNotFoundException(event, ribbonName));
-        List<UserRibbons> matchingRibbons = userRibbonsRepository.findByUserid(member.getId())
-                .stream()
-                .filter(r -> r.getRibbonid() == ribbonToTake.getId())
-                .collect(Collectors.toList());
-        if (matchingRibbons.size() < 1) {
-            event.getHook().sendMessage(member.getName() + " does not have this ribbon.").queue();
-            return;
+        public GiveRibbon() {
+            this.name = "give";
+            this.help = "give ribbon to a user";
+            this.userPermissions = new Permission[]{ Permission.KICK_MEMBERS };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "id", "id of the ribbon to give")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.USER, "user", "user to give the ribbon to")
+                    .setRequired(true));
+            this.options = options;
         }
-        userRibbonsRepository.deleteAll(matchingRibbons);
-        event.getHook().sendMessage("Ribbon removed from " + member.getName()).queue();
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            slashCommandEvent.deferReply(true).queue();
+            var member = Objects.requireNonNull(slashCommandEvent.getOption("user")).getAsUser();
+            int ribbonId = Objects.requireNonNull(slashCommandEvent.getOption("id")).getAsInt();
+            Ribbon ribbonToGive;
+            try {
+                ribbonToGive = RibbonHelper.getRibbonById((long) ribbonId).stream()
+                        .findFirst().orElseThrow(() ->
+                                new RibbonNotFoundException(slashCommandEvent, Integer.toString(ribbonId)));
+                RibbonHelper.AssignRibbon(member, ribbonToGive);
+                slashCommandEvent.getHook().sendMessage(ribbonToGive.getName() + " given to " + member.getName())
+                        .queue();
+            } catch (RibbonNotFoundException e) {
+                slashCommandEvent.getHook().sendMessage("Could not find a ribbon with id " + ribbonId)
+                        .queue();
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public static class AddRibbon extends SlashCommand {
+
+        public AddRibbon() {
+            this.name = "add";
+            this.help = "Add a new ribbon";
+            this.userPermissions = new Permission[]{ Permission.KICK_MEMBERS };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.STRING, "name", "name of the ribbon")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "image_link", "link to ribbon image")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "description", "ribbon description")
+                    .setRequired(false));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            slashCommandEvent.deferReply(true).queue();
+            Ribbon newRibbon = new Ribbon();
+            newRibbon.setName(Objects.requireNonNull(slashCommandEvent.getOption("name"))
+                    .getAsString());
+            newRibbon.setPath(Objects.requireNonNull(slashCommandEvent.getOption("image_link"))
+                    .getAsString());
+            newRibbon.setDescription(Objects.requireNonNullElse(
+                    Objects.requireNonNull(slashCommandEvent
+                            .getOption("description")).getAsString(), "no description"));
+            RibbonHelper.saveRibbon(newRibbon);
+            slashCommandEvent.getHook().sendMessage("Ribbon created successfully.").queue();
+        }
     }
 
-    public static void DeleteRibbon(SlashCommandInteractionEvent event, String ribbonName) {
-        event.deferReply(true).queue();
-        List<Ribbon> foundRibbons = ribbonRepository.findAll().stream()
-                .filter(ri -> ri.getName().equals(ribbonName))
-                .collect(Collectors.toList());
-        try {
-            foundRibbons.forEach(ribbon -> ribbonRepository.delete(ribbon));
-        } catch (DataIntegrityViolationException ex) {
-            event.getHook().sendMessage("Cannot delete this ribbon as it is currently assigned to users.")
+    public static class TakeRibbon extends SlashCommand {
+        public TakeRibbon() {
+            this.name = "remove";
+            this.help = "remove a ribbon from someone";
+            this.userPermissions = new Permission[]{ Permission.KICK_MEMBERS };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "ribbon_id", "id of ribbon to take away")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.USER, "user", "user to take ribbon from")
+                    .setRequired(true));
+            this.options = options;
+        }
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            slashCommandEvent.deferReply(true).queue();
+            var member = Objects.requireNonNull(slashCommandEvent.getOption("user")).getAsUser();
+            Ribbon ribbonToTake;
+            try {
+                ribbonToTake = RibbonHelper.getRibbonById(
+                        (long) Objects.requireNonNull(slashCommandEvent.getOption("ribbon_id")).getAsInt())
+                        .stream()
+                        .findFirst().orElseThrow(() -> new RibbonNotFoundException(slashCommandEvent,
+                                Objects.requireNonNull(slashCommandEvent.getOption("ribbon_id")).getAsString()));
+                Ribbon finalRibbonToTake = ribbonToTake;
+                List<UserRibbons> matchingRibbons = RibbonHelper.getUserRibbons(member.getId())
+                        .stream()
+                        .filter(r -> r.getRibbonid() == finalRibbonToTake.getId())
+                        .collect(Collectors.toList());
+                if (matchingRibbons.size() < 1) {
+                    slashCommandEvent.getHook().sendMessage(member.getName() + " does not have this ribbon.")
+                            .queue();
+                    return;
+                }
+                RibbonHelper.deleteAllMatchingRibbons(matchingRibbons);
+                slashCommandEvent.getHook().sendMessage("Ribbon removed from " + member.getName()).queue();
+            } catch (RibbonNotFoundException e) {
+                slashCommandEvent.getHook().sendMessage("Error removing ribbon")
+                        .setEphemeral(true)
+                        .queue();
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
+
+    public static class DeleteRibbon extends SlashCommand {
+        public DeleteRibbon() {
+            this.name = "delete";
+            this.help = "delete a ribbon";
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "ribbon_id", "id of ribbon to delete")
+                    .setRequired(true));
+            this.options = options;
+            this.userPermissions = new Permission[] { Permission.KICK_MEMBERS };
+        }
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            slashCommandEvent.deferReply(true).queue();
+            List<Ribbon> foundRibbons = RibbonHelper.getAllRibbons()
+                    .stream()
+                    .filter(ri -> ri.getId() == (long) Objects.requireNonNull(
+                            slashCommandEvent.getOption("ribbon_id")).getAsInt())
+                    .collect(Collectors.toList());
+            try {
+                foundRibbons.forEach(RibbonHelper::deleteRibbon);
+            } catch (DataIntegrityViolationException ex) {
+                slashCommandEvent.getHook().sendMessage(
+                        "Cannot delete this ribbon as it is currently assigned to users.")
+                        .queue();
+                return;
+            }
+            slashCommandEvent.getHook().sendMessage(
+                    "Deleted " + (long) foundRibbons.size() + " ribbons called " +
+                            foundRibbons.get(0).getName())
                     .queue();
-            return;
-        }
-        event.getHook().sendMessage("Deleted " + (long) foundRibbons.size() + " ribbons called " + ribbonName)
-                .queue();
-    }
-
-    public static void ShowRibbon(SlashCommandInteractionEvent event, String ribbonName) {
-        Optional<Ribbon> ribbon = ribbonRepository.findByName(ribbonName).stream().findFirst();
-        if (ribbon.isEmpty()) {
-            event.reply("There are no ribbons by this name").setEphemeral(true).queue();
-        } else {
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle(ribbonName);
-            eb.setDescription(ribbon.get().getDescription());
-            eb.setImage(ribbon.get().getPath());
-            event.replyEmbeds(eb.build()).queue();
         }
     }
 
-    public static void ResetUsersRibbons(SlashCommandInteractionEvent event, User user) {
-        event.deferReply(true).queue();
-        List<UserRibbons> usersRibbons = userRibbonsRepository.findByUserid(user.getId());
-        if (usersRibbons.size() < 1) {
-            event.getHook().sendMessage("This user does not have any ribbons").queue();
-        } else {
-            userRibbonsRepository.deleteAll(usersRibbons);
-            event.getHook().sendMessage("All ribbons deleted for " + user.getName()).queue();
+    public static class ShowRibbon extends SlashCommand {
+        public ShowRibbon() {
+            this.name = "show";
+            this.help = "show a ribbon";
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.STRING, "name", "name of ribbon to show")
+                    .setRequired(true));
+            this.options = options;
+        }
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            Optional<Ribbon> ribbon = RibbonHelper.getRibbonByName(
+                    Objects.requireNonNull(slashCommandEvent.getOption("name")).getAsString())
+                    .stream()
+                    .findFirst();
+            if (ribbon.isEmpty()) {
+                slashCommandEvent.reply("There are no ribbons by this name").setEphemeral(true).queue();
+            } else {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setTitle(Objects.requireNonNull(slashCommandEvent.getOption("name")).getAsString());
+                eb.setDescription(ribbon.get().getDescription());
+                eb.setImage(ribbon.get().getPath());
+                slashCommandEvent.replyEmbeds(eb.build()).queue();
+            }
         }
     }
 
-    public static void ListAllRibbons(SlashCommandInteractionEvent event) {
-        List<Ribbon> ribbons = ribbonRepository.findAll();
-        Collections.reverse(ribbons);
-        List<MessageEmbed> embeds = new ArrayList<>();
-        ribbons.forEach(ribbon -> {
-            MessageEmbed embed = new EmbedBuilder()
-                    .setTitle(ribbon.getName())
-                    .setDescription(ribbon.getDescription())
-                    .setImage(ribbon.getPath())
-                    .addField("Id", Long.toString(ribbon.getId()), true)
+    public static class AllRibbons extends SlashCommand {
+        public AllRibbons() {
+            this.name = "all";
+            this.help = "Show all ribbons";
+        }
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            List<Ribbon> ribbons = RibbonHelper.getAllRibbons();
+            Collections.reverse(ribbons);
+            List<MessageEmbed> embeds = new ArrayList<>();
+            ribbons.forEach(ribbon -> {
+                MessageEmbed embed = new EmbedBuilder()
+                        .setTitle(ribbon.getName())
+                        .setDescription(ribbon.getDescription())
+                        .setImage(ribbon.getPath())
+                        .addField("Id", Long.toString(ribbon.getId()), true)
+                        .build();
+                embeds.add(embed);
+            });
+            ButtonEmbedPaginator paginator = new ButtonEmbedPaginator.Builder()
+                    .setTimeout(1, TimeUnit.MINUTES)
+                    .waitOnSinglePage(true)
+                    .setEventWaiter(EponaBotApplication.eWaiter)
+                    .addItems(embeds)
                     .build();
-            embeds.add(embed);
-        });
-        ButtonEmbedPaginator paginator = new ButtonEmbedPaginator.Builder()
-                .setTimeout(1, TimeUnit.MINUTES)
-                .waitOnSinglePage(true)
-                .setEventWaiter(EponaBotApplication.eWaiter)
-                .addItems(embeds)
-                .build();
-        try {
-            event.replyEmbeds(new EmbedBuilder().setDescription("Checking for ribbons...").build())
-                    .queue(interactionHook -> {
-                        interactionHook.retrieveOriginal()
-                                .queue(message -> paginator.paginate(message, 0));
-                    });
-        } catch (IllegalArgumentException ex) {
-            event.reply(ex.getMessage()).queue();
+            try {
+                slashCommandEvent.replyEmbeds(new EmbedBuilder().setDescription("Checking for ribbons...").build())
+                        .queue(interactionHook -> interactionHook.retrieveOriginal()
+                                .queue(message -> paginator.paginate(message, 0)));
+            } catch (IllegalArgumentException ex) {
+                slashCommandEvent.reply(ex.getMessage()).queue();
+            }
         }
+    }
+
+    public static class ResetUser extends SlashCommand {
+        public ResetUser() {
+            this.name = "reset";
+            this.help = "reset a users ribbons";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.USER, "user", "user to reset ribbons for")
+                    .setRequired(true));
+            this.options = options;
+        }
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            slashCommandEvent.deferReply(true).queue();
+            List<UserRibbons> userRibbons = RibbonHelper.getUserRibbons(
+                    Objects.requireNonNull(slashCommandEvent.getOption("user")).getAsUser().getId());
+            if (userRibbons.size() < 1) {
+                slashCommandEvent.getHook().sendMessage("This user does not have any ribbons").queue();
+            } else {
+                RibbonHelper.deleteAllMatchingRibbons(userRibbons);
+                slashCommandEvent.getHook().sendMessage("All ribbons deleted for " +
+                        Objects.requireNonNull(slashCommandEvent.getOption("user"))
+                                .getAsUser().getName())
+                        .queue();
+            }
+        }
+    }
+    @Override
+    protected void execute(SlashCommandEvent slashCommandEvent) {
+
     }
 }
