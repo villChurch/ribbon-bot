@@ -6,6 +6,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.villchurch.eponabot.slashcommands.EyeSpyCommands;
 import com.villchurch.eponabot.slashcommands.ProfileCommand;
 import com.villchurch.eponabot.slashcommands.RibbonCommands;
+import com.villchurch.eponabot.slashcommands.TagCommands;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -48,17 +49,11 @@ public class Bot {
         commands.add(new EyeSpyCommands());
         commands.add(new RibbonCommands());
         commands.add(new ProfileCommand());
+        commands.add(new TagCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
     public static void Setup() {
-        // These commands might take a few minutes to be active after creation/update/delete
-//        CommandListUpdateAction commands = jda.updateCommands();
-//        commands.addCommands(
-//                Commands.slash("profile", "show your profile")
-//                        .addOption(USER, "user", "user to show ribbons for. If blank will show your own"
-//                        , false)
-//        ).queue();
     }
 
 }

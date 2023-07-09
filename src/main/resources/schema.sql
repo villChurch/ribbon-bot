@@ -33,4 +33,12 @@ CREATE TABLE IF NOT EXISTS  eponaRibbon.eyespy (
     id bigserial PRIMARY KEY,
     userid text NOT NULL,
     points INT
+);
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.tags (
+    id bigserial PRIMARY KEY,
+    guildid text,
+    tag text NOT NULL,
+    tagtext text NOT NULL,
+    userid text NOT NULL
 )
