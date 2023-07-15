@@ -10,12 +10,6 @@ import lombok.Setter;
 @Table(name = "eyespyawards", schema = "eponaRibbon")
 public class EyeSpyAwards {
 
-    /*CREATE TABLE IF NOT EXISTS eponaRibbon.eyespyawards (
-            id bigserial PRIMARY KEY,
-            points int,
-            ribbonid int
-    );*/
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

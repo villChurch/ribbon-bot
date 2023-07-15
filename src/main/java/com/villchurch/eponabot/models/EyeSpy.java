@@ -10,12 +10,6 @@ import lombok.Setter;
 @Table(name = "eyespy", schema = "eponaribbon")
 public class EyeSpy {
 
-    /*
-        id bigserial PRIMARY KEY,
-    userid text NOT NULL,
-    points INT
-     */
-
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private long id;
