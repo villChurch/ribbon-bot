@@ -44,9 +44,9 @@ public class RibbonCommands extends SlashCommand {
             this.help = "give ribbon to a user";
             this.userPermissions = new Permission[]{ Permission.KICK_MEMBERS };
             List<OptionData> options = new ArrayList<>();
-            options.add(new OptionData(OptionType.INTEGER, "id", "id of the ribbon to give")
-                    .setRequired(true));
             options.add(new OptionData(OptionType.USER, "user", "user to give the ribbon to")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.INTEGER, "id", "id of the ribbon to give")
                     .setRequired(true));
             this.options = options;
         }

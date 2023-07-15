@@ -41,4 +41,10 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.tags (
     tag text NOT NULL,
     tagtext text NOT NULL,
     userid text NOT NULL
-)
+);
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.eyespyawards (
+    id bigserial PRIMARY KEY,
+    points int,
+    ribbonid int
+);
