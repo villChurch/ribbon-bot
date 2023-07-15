@@ -6,7 +6,6 @@ public class RibbonNotFoundException extends Exception{
 
     public RibbonNotFoundException(SlashCommandInteractionEvent event, String ribbonName) {
         super("Could not find ribbon called " + ribbonName);
-        event.getHook().sendMessage("Could not find ribbon called " + ribbonName).queue();
     }
 
     public RibbonNotFoundException(String ribbonId) {

@@ -7,16 +7,16 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "eyespy", schema = "eponaribbon")
-public class EyeSpy {
+@Table(name = "eyespyawards", schema = "eponaRibbon")
+public class EyeSpyAwards {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Column(name = "userid")
-    private String userid;
 
     @Column(name = "points")
     private int points;
+
+    @Column(name = "ribbonid")
+    private int ribbonid;
 }
