@@ -124,6 +124,7 @@ public class EyeSpyCommands extends SlashCommand {
             options.add(new OptionData(OptionType.INTEGER,
                     "ribbon_id", "ID of ribbon to give"));
             this.options = options;
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
         }
 
         @Override
@@ -152,6 +153,7 @@ public class EyeSpyCommands extends SlashCommand {
             options.add(new OptionData(OptionType.INTEGER,
                     "points", "points level you want to remove"));
             this.options = options;
+            this.userPermissions =  new Permission[] { Permission.ADMINISTRATOR };
         }
         @Override
         protected void execute(SlashCommandEvent slashCommandEvent) {
