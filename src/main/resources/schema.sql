@@ -48,3 +48,8 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.eyespyawards (
     points int,
     ribbonid int
 );
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.pets (
+    id bigserial PRIMARY KEY,
+
+)
