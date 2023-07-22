@@ -3,10 +3,7 @@ package com.villchurch.eponabot;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
-import com.villchurch.eponabot.slashcommands.EyeSpyCommands;
-import com.villchurch.eponabot.slashcommands.ProfileCommand;
-import com.villchurch.eponabot.slashcommands.RibbonCommands;
-import com.villchurch.eponabot.slashcommands.TagCommands;
+import com.villchurch.eponabot.slashcommands.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -23,14 +20,14 @@ public class Bot {
 
     private static JDA jda;
     private String token;
-    public Bot( @Value("${app.discord.bot.test.token}")
+    public Bot( @Value("${app.discord.bot.live.token}")
                 String getToken) {
         this.token = getToken;
         CommandClientBuilder client = new CommandClientBuilder();
         client.addSlashCommands(GetSlashCommands());
         client.setOwnerId("272151652344266762");
         client.setActivity(Activity.playing("Watching ribbons"));
-        client.forceGuildOnly("798239862477815819"); // for testing
+//        client.forceGuildOnly("798239862477815819"); // for testing
         CommandClient commandClient = client.build();
 
         jda = JDABuilder.createLight(token, EnumSet.noneOf(GatewayIntent.class))
@@ -50,6 +47,7 @@ public class Bot {
         commands.add(new RibbonCommands());
         commands.add(new ProfileCommand());
         commands.add(new TagCommands());
+        commands.add(new PetCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
