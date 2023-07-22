@@ -48,3 +48,19 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.eyespyawards (
     points int,
     ribbonid int
 );
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.pets (
+    id bigserial PRIMARY KEY,
+    childlink text,
+    adultlink text
+);
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.userpets (
+    id bigserial PRIMARY KEY,
+    petid INTEGER,
+    owner text,
+    name text,
+    adult BOOLEAN DEFAULT false,
+    FOREIGN KEY (petid)
+            REFERENCES eponaRibbon.pets (id)
+);

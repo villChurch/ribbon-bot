@@ -3,10 +3,7 @@ package com.villchurch.eponabot;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
-import com.villchurch.eponabot.slashcommands.EyeSpyCommands;
-import com.villchurch.eponabot.slashcommands.ProfileCommand;
-import com.villchurch.eponabot.slashcommands.RibbonCommands;
-import com.villchurch.eponabot.slashcommands.TagCommands;
+import com.villchurch.eponabot.slashcommands.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -50,6 +47,7 @@ public class Bot {
         commands.add(new RibbonCommands());
         commands.add(new ProfileCommand());
         commands.add(new TagCommands());
+        commands.add(new PetCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
