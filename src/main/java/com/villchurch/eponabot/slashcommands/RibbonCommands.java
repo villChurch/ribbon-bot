@@ -11,6 +11,7 @@ import com.villchurch.eponabot.models.UserRibbons;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class RibbonCommands extends SlashCommand {
@@ -33,10 +35,58 @@ public class RibbonCommands extends SlashCommand {
                 new DeleteRibbon(),
                 new ShowRibbon(),
                 new AllRibbons(),
-                new ResetUser()
+                new ResetUser(),
+                new GiveRibbonBulk()
         };
     }
 
+    public static class GiveRibbonBulk extends SlashCommand {
+        public GiveRibbonBulk() {
+            this.name = "give_bulk";
+            this.help = "give multiple ribbons to a user";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.USER, "user", "user to give the ribbon to")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "ids", "comma separated list of ids to give")
+                    .setRequired(true));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            slashCommandEvent.deferReply(true).queue();
+            User user = Objects.requireNonNull(slashCommandEvent.getOption("user")).getAsUser();
+            String idsString = Objects.requireNonNull(slashCommandEvent.getOption("ids")).getAsString();
+            List<Integer> convertedIds = Stream.of(idsString.split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+            List<Integer> missingIds = new ArrayList<>();
+            List<Integer> givenIds = new ArrayList<>();
+            convertedIds.forEach(id -> {
+                Optional<Ribbon> optional = RibbonHelper.getRibbonById((long) id);
+                if (optional.isEmpty()) {
+                    missingIds.add(id);
+                } else  {
+                    givenIds.add(id);
+                    Ribbon ribbonToGive = optional.get();
+                    RibbonHelper.AssignRibbon(user, ribbonToGive);
+                }
+            });
+            StringBuilder sb = new StringBuilder();
+            if (!missingIds.isEmpty()) {
+                sb.append("Could not find ribbons for the following ids - ");
+                missingIds.forEach(id -> sb.append(id).append(" "));
+                sb.append("/n");
+            }
+            if (!givenIds.isEmpty()) {
+                sb.append("Added the following ribbon ids to ").append(user.getName()).append(" - ");
+                givenIds.forEach(id -> sb.append(id).append(" "));
+            }
+            slashCommandEvent.getHook().sendMessage(sb.toString()).queue();
+        }
+    }
     public static class GiveRibbon extends SlashCommand {
 
         public GiveRibbon() {
