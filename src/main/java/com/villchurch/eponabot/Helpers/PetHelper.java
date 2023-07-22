@@ -34,6 +34,10 @@ public class PetHelper {
         return userPetsRepository.findById(id);
     }
 
+    public static List<Pets> returnAllPets() {
+        return petsRepository.findAll();
+    }
+
     public static List<Userpets> getUsersPetByUserId(String userId) {
         return userPetsRepository.findByOwner(userId);
     }

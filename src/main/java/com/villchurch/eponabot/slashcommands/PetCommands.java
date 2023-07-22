@@ -10,6 +10,7 @@ import com.villchurch.eponabot.models.Pets;
 import com.villchurch.eponabot.models.Userpets;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -18,7 +19,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 public class PetCommands extends SlashCommand {
 
@@ -32,12 +32,38 @@ public class PetCommands extends SlashCommand {
                 new Assign(),
                 new Add(),
                 new Show(),
-                new Remove()
+                new Remove(),
+                new ListPets()
         };
     }
     @Override
     protected void execute(SlashCommandEvent slashCommandEvent) {
 
+    }
+
+    public static class ListPets extends SlashCommand {
+        public ListPets() {
+            this.name = "list";
+            this.help = "list all pets";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+        }
+        @Override
+        protected void execute(SlashCommandEvent slashCommandEvent) {
+            List<Pets> pets = PetHelper.returnAllPets();
+            if (pets.isEmpty()) {
+                slashCommandEvent.reply("There are currently no pets.").queue();
+            } else {
+                List<MessageEmbed> petsEmbed = returnPetEmbed(pets, slashCommandEvent.getUser());
+                ButtonEmbedPaginator buttonEmbedPaginator = returnButtonEmbedPaginator(petsEmbed);
+                try {
+                    slashCommandEvent.replyEmbeds(new EmbedBuilder().setDescription("Checking for pets...").build())
+                            .queue(interactionHook -> interactionHook.retrieveOriginal()
+                                    .queue(message -> buttonEmbedPaginator.paginate(message, 0)));
+                } catch (IllegalArgumentException ex) {
+                    slashCommandEvent.reply(ex.getMessage()).queue();
+                }
+            }
+        }
     }
 
     public static class Remove extends SlashCommand {
@@ -115,6 +141,20 @@ public class PetCommands extends SlashCommand {
                     .setImage(p.isAdult() ? PetHelper.returnAdultLinkFromPetId(p.getPetid())
                             : PetHelper.returnChildLinkFromPetId(p.getPetid()))
                     .setFooter(user.getName() + "'s Pets")
+                    .build();
+            pets.add(embed);
+        });
+        return  pets;
+    }
+
+    private static List<MessageEmbed> returnPetEmbed(List<Pets> petsList, User user) {
+        List<MessageEmbed> pets = new ArrayList<>();
+        Collections.reverse(petsList);
+        petsList.forEach(p -> {
+            MessageEmbed embed = new EmbedBuilder()
+                    .setTitle("ID - " + p.getId())
+                    .addField(new MessageEmbed.Field("Child Link", p.getChildlink(), false))
+                    .addField(new MessageEmbed.Field("Adult Link", p.getAdultlink(), false))
                     .build();
             pets.add(embed);
         });
