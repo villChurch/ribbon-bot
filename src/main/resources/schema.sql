@@ -64,3 +64,14 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.userpets (
     FOREIGN KEY (petid)
             REFERENCES eponaRibbon.pets (id)
 );
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.petsbuttons (
+    id bigserial PRIMARY KEY,
+    petid INTEGER,
+    button text,
+    msgid text,
+    channelid text,
+    guildid text,
+    FOREIGN KEY (petid)
+        REFERENCES eponaRibbon.pets (id)
+);

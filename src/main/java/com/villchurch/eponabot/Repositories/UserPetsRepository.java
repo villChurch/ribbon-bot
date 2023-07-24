@@ -13,4 +13,6 @@ public interface UserPetsRepository extends JpaRepository<Userpets, Long> {
     Optional<Userpets> findById(Long id);
 
     List<Userpets> findByOwner(String owner);
+
+    List<Userpets> findByPetid(long petid);
 }
