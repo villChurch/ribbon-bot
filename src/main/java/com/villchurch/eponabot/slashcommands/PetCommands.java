@@ -7,14 +7,15 @@ import com.jagrosh.jdautilities.menu.ButtonEmbedPaginator;
 import com.villchurch.eponabot.EponaBotApplication;
 import com.villchurch.eponabot.Helpers.PetHelper;
 import com.villchurch.eponabot.models.Pets;
+import com.villchurch.eponabot.models.PetsButtons;
 import com.villchurch.eponabot.models.Userpets;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -33,12 +34,118 @@ public class PetCommands extends SlashCommand {
                 new Add(),
                 new Show(),
                 new Remove(),
-                new ListPets()
+                new ListPets(),
+                new SpawnPet(),
+                new DeSpawnPet(),
+                new DeletePet()
         };
     }
     @Override
     protected void execute(SlashCommandEvent slashCommandEvent) {
 
+    }
+
+    public static class DeletePet extends SlashCommand {
+        public DeletePet() {
+            this.name = "delete";
+            this.help = "this will delete a pet and remove it from everybody";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "pet_id", "id of pet to delete")
+                    .setRequired(true));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            event.deferReply(true).queue();
+            long petId = Objects.requireNonNull(event.getOption("pet_id")).getAsLong();
+            Optional<Pets> optional = PetHelper.getPetById(petId);
+            if (optional.isEmpty()) {
+                event.getHook().sendMessage("There are no pets with id " + petId).queue();
+            } else {
+                List<Userpets> userpetsList = PetHelper.findByUserpetsByPetId(petId);
+                userpetsList.forEach(PetHelper::removePetFromUser);
+                PetHelper.deletePet(optional.get());
+                event.getHook().sendMessage("Deleted pet with id " + petId + ". " + userpetsList.size() + " pets removed from users.")
+                        .queue();
+            }
+        }
+    }
+    public static class DeSpawnPet extends SlashCommand {
+        public DeSpawnPet() {
+            this.name = "despawn";
+            this.help = "Despawn a pet";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "pet_id", "id of pet to despawn")
+                    .setRequired(true));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            event.deferReply(true).queue();
+            long petId = Objects.requireNonNull(event.getOption("pet_id")).getAsLong();
+            List<PetsButtons> buttons = PetHelper.findPetButtonsByPetId(petId);
+            if (buttons.isEmpty()) {
+                event.getHook().sendMessage("No buttons for pet id " + petId).queue();
+            } else {
+                PetHelper.deletePetsButtons(buttons);
+                event.getHook().sendMessage(buttons.size() + " button listeners removed.").queue();
+            }
+        }
+    }
+
+    public static class SpawnPet extends SlashCommand {
+        public SpawnPet() {
+            this.name = "spawn";
+            this.help = "Spawn a new pet";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.CHANNEL, "channel", "Channel to write spawn message")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.INTEGER, "pet_id", "id of pet to spawn")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "message", "Optional message to post with the pet spawn"));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            event.deferReply(true).queue();
+            long petId = Objects.requireNonNull(event.getOption("pet_id")).getAsLong();
+            Optional<Pets> optional = PetHelper.getPetById(petId);
+            if (optional.isEmpty()) {
+                event.getHook().sendMessage("No pet found with id " + petId).queue();
+            } else {
+                Pets pet  = optional.get();
+                var channel = Objects.requireNonNull(event.getOption("channel")).getAsChannel().asTextChannel();
+                String msg = "Click claim to claim this pet";
+                if (event.hasOption("message")) {
+                    msg = Objects.requireNonNull(event.getOption("message")).getAsString();
+                }
+                event.getHook().sendMessage("Pet spawned!").queue();
+                MessageEmbed embed = new EmbedBuilder()
+                        .setTitle("A new pet has appeared!")
+                        .setDescription(msg)
+                        .setImage(pet.getChildlink())
+                        .build();
+                channel.sendMessageEmbeds(embed)
+                        .addActionRow(
+                                Button.primary("claim" + petId, "Claim")
+                        )
+                        .queue(message ->  {
+                            PetsButtons petsButtons = new PetsButtons();
+                            petsButtons.setPetid(petId);
+                            petsButtons.setButton("claim" + petId);
+                            petsButtons.setMsgid(message.getId());
+                            petsButtons.setChannelid(message.getChannel().getId());
+                            petsButtons.setGuildid(message.getGuild().getId());
+                            PetHelper.savePetButton(petsButtons);
+                        });
+            }
+        }
     }
 
     public static class ListPets extends SlashCommand {

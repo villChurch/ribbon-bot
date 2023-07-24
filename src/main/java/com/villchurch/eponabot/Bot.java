@@ -3,6 +3,7 @@ package com.villchurch.eponabot;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.villchurch.eponabot.Listeners.ButtonListener;
 import com.villchurch.eponabot.slashcommands.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -26,7 +27,7 @@ public class Bot {
         CommandClientBuilder client = new CommandClientBuilder();
         client.addSlashCommands(GetSlashCommands());
         client.setOwnerId("272151652344266762");
-        client.setActivity(Activity.playing("Watching ribbons"));
+        client.setActivity(Activity.playing("Eating ribbons"));
 //        client.forceGuildOnly("798239862477815819"); // for testing
         CommandClient commandClient = client.build();
 
@@ -34,7 +35,7 @@ public class Bot {
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                         GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.playing("Booting....."))
-                .addEventListeners(EponaBotApplication.eWaiter, commandClient)
+                .addEventListeners(EponaBotApplication.eWaiter, new ButtonListener(), commandClient)
                 .build();
 
         jda.getGuilds().forEach(guild -> guild.updateCommands().queue());
