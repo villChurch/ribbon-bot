@@ -49,6 +49,7 @@ public class Bot {
         commands.add(new ProfileCommand());
         commands.add(new TagCommands());
         commands.add(new PetCommands());
+        commands.add(new QuestionOfTheDayCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
