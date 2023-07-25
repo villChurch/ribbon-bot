@@ -66,12 +66,25 @@ public class PetCommands extends SlashCommand {
             } else {
                 List<Userpets> userpetsList = PetHelper.findByUserpetsByPetId(petId);
                 userpetsList.forEach(PetHelper::removePetFromUser);
+                RemovePetSpawn(PetHelper.findPetButtonsByPetId(petId), event);
                 PetHelper.deletePet(optional.get());
                 event.getHook().sendMessage("Deleted pet with id " + petId + ". " + userpetsList.size() + " pets removed from users.")
                         .queue();
             }
         }
     }
+
+    private static void RemovePetSpawn(List<PetsButtons> buttons, SlashCommandEvent event) {
+        if (!buttons.isEmpty()) {
+            buttons.forEach(button -> {
+                var guild = event.getJDA().getGuildById(button.getGuildid());
+                var channel = Objects.requireNonNull(guild).getTextChannelById(button.getChannelid());
+                Objects.requireNonNull(channel).deleteMessageById(button.getMsgid()).queue();
+            });
+            PetHelper.deletePetsButtons(buttons);
+        }
+    }
+
     public static class DeSpawnPet extends SlashCommand {
         public DeSpawnPet() {
             this.name = "despawn";
@@ -91,8 +104,8 @@ public class PetCommands extends SlashCommand {
             if (buttons.isEmpty()) {
                 event.getHook().sendMessage("No buttons for pet id " + petId).queue();
             } else {
-                PetHelper.deletePetsButtons(buttons);
-                event.getHook().sendMessage(buttons.size() + " button listeners removed.").queue();
+                RemovePetSpawn(buttons, event);
+                event.getHook().sendMessage(buttons.size() + " messages and button listeners removed.").queue();
             }
         }
     }
