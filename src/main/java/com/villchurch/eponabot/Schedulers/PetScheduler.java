@@ -15,7 +15,7 @@ public class PetScheduler {
     @Autowired
     UserPetsRepository userPetsRepository;
 
-    @Scheduled(cron = "0 0 20 1/2 * ? *", zone = "UTC")
+    @Scheduled(cron = "0 0 20 1/2 * ?", zone = "UTC")
     private void AgePets() {
         List<Userpets> childPets = userPetsRepository.findAll().stream()
                 .filter(p -> !p.isAdult())

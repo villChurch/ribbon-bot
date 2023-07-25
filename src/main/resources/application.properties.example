@@ -13,3 +13,8 @@ spring.sql.init.mode=always
 spring.datasource.continue-on-error=true
 
 app.discord.bot.token=${DISCORD_BOT_TOKEN}
+
+app.discord.bot.live.token=${DISCORD_BOT_TOKEN}
+app.discord.bot.test.token=${DISCORD_BOT_TOKEN_TEST}
+app.discord.live.qod.webhook=${WEBHOOK}
+app.discord.test.qod.webhook=${TEST_WEBHOOK}

@@ -75,3 +75,9 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.petsbuttons (
     FOREIGN KEY (petid)
         REFERENCES eponaRibbon.pets (id)
 );
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.qod (
+    id bigserial PRIMARY KEY,
+    question text,
+    posted BOOLEAN DEFAULT false
+);
