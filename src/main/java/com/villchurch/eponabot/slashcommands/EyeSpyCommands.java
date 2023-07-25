@@ -7,7 +7,9 @@ import com.villchurch.eponabot.Helpers.RibbonHelper;
 import com.villchurch.eponabot.models.EyeSpy;
 import com.villchurch.eponabot.models.EyeSpyAwards;
 import com.villchurch.eponabot.models.Ribbon;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -73,9 +75,14 @@ public class EyeSpyCommands extends SlashCommand {
                             .queue();
                 } else {
                     RibbonHelper.AssignRibbon(user, ribbon.get());
-                    slashCommandEvent.getHook().sendMessage("1 point added to " + user.getName()
-                        + ". " + user.getName() + " has now reached " + newPoints + " points and has been awarded " +
-                            "the following ribbon " + ribbon.get().getName()).queue();
+                    MessageEmbed embed = new EmbedBuilder()
+                            .setTitle("New Award")
+                            .setDescription("1 point added to " + user.getName()
+                                    + ". " + user.getName() + " has now reached " + newPoints + " points and has been awarded " +
+                                    "the following ribbon " + ribbon.get().getName())
+                            .setImage(ribbon.get().getPath())
+                            .build();
+                    slashCommandEvent.getHook().sendMessageEmbeds(embed).queue();
                 }
             } else {
                 slashCommandEvent.getHook().sendMessage("1 point added to " + user.getName())
