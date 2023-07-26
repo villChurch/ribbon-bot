@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -37,12 +38,72 @@ public class PetCommands extends SlashCommand {
                 new ListPets(),
                 new SpawnPet(),
                 new DeSpawnPet(),
-                new DeletePet()
+                new DeletePet(),
+                new ReleasePet(),
+                new TradePet()
         };
     }
     @Override
     protected void execute(SlashCommandEvent slashCommandEvent) {
 
+    }
+
+    public static class TradePet extends SlashCommand {
+        public TradePet() {
+            this.name = "trade";
+            this.help = "this will allow you to trade this pet to another user";
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "pet_id", "id of pet to trade")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.USER, "user", "user to trade the pet with")
+                    .setRequired(true));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            event.deferReply().queue();
+            long petId = Objects.requireNonNull(event.getOption("pet_id")).getAsLong();
+            List<Userpets> pets = PetHelper.getUsersPetByUserId(event.getUser().getId());
+            if (pets.isEmpty()) {
+                event.getHook().sendMessage("You currently do not own any pets").queue();
+            } else if (pets.stream().anyMatch(p -> p.getId() == petId)) {
+                Userpets pet = pets.stream().filter(p -> p.getId() == petId).collect(Collectors.toList()).get(0);
+                User user = Objects.requireNonNull(event.getOption("user")).getAsUser();
+                pet.setOwner(user.getId());
+                PetHelper.saveUsersPet(pet);
+                event.getHook().sendMessage(pet.getName() + " has now been transferred to " + user.getName()).queue();
+            } else {
+                event.getHook().sendMessage("You do not own a pet with id " + petId).queue();
+            }
+        }
+    }
+
+    public static class ReleasePet extends SlashCommand {
+        public ReleasePet() {
+            this.name = "release";
+            this.help = "this will release a pet you own and remove it from your collection.";
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "pet_id", "id of pet to release")
+                    .setRequired(true));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            event.deferReply(true).queue();
+            long petId = Objects.requireNonNull(event.getOption("pet_id")).getAsLong();
+            List<Userpets> pets = PetHelper.getUsersPetByUserId(event.getUser().getId());
+            if (pets.isEmpty()) {
+                event.getHook().sendMessage("You currently do not own any pets.").queue();
+            } else if (pets.stream().anyMatch(p -> p.getId() == petId)) {
+                Userpets pet = pets.stream().filter(p -> p.getId() == petId).collect(Collectors.toList()).get(0);
+                PetHelper.removePetFromUser(pet);
+                event.getHook().sendMessage("Your pet " + pet.getName() + " has been released.").queue();
+            } else {
+                event.getHook().sendMessage("You do not own a pet with id " + petId).queue();
+            }
+        }
     }
 
     public static class DeletePet extends SlashCommand {
