@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -350,8 +349,8 @@ public class PetCommands extends SlashCommand {
                     Permission.ADMINISTRATOR
             };
             List<OptionData> options = new ArrayList<>();
-            options.add(new OptionData(OptionType.STRING, "child_link", "location to child variant image"));
-            options.add(new OptionData(OptionType.STRING, "adult_link","location to adult variant image"));
+            options.add(new OptionData(OptionType.STRING, "child_link", "location to child variant image").setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "adult_link","location to adult variant image").setRequired(true));
             this.options = options;
         }
         @Override
@@ -372,8 +371,8 @@ public class PetCommands extends SlashCommand {
                     Permission.ADMINISTRATOR
             };
             List<OptionData> options = new ArrayList<>();
-            options.add(new OptionData(OptionType.INTEGER, "id", "id of pet to assign"));
-            options.add(new OptionData(OptionType.USER, "user", "user to assign pet to"));
+            options.add(new OptionData(OptionType.INTEGER, "id", "id of pet to assign").setRequired(true));
+            options.add(new OptionData(OptionType.USER, "user", "user to assign pet to").setRequired(true));
             this.options = options;
         }
 
@@ -396,8 +395,10 @@ public class PetCommands extends SlashCommand {
             this.name = "name";
             this.help = "name your pet";
             List<OptionData> options = new ArrayList<>();
-            options.add(new OptionData(OptionType.INTEGER, "id", "id of pet to change name"));
-            options.add(new OptionData(OptionType.STRING, "name", "name for your pet"));
+            options.add(new OptionData(OptionType.INTEGER, "id", "id of pet to change name")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "name", "name for your pet")
+                    .setRequired(true));
             this.options = options;
         }
         @Override

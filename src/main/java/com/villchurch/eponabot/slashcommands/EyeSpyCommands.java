@@ -54,7 +54,8 @@ public class EyeSpyCommands extends SlashCommand {
             this.userPermissions = new Permission[]{Permission.ADMINISTRATOR};
 
             List<OptionData> options = new ArrayList<>();
-            options.add(new OptionData(OptionType.USER, "user", "user to give point to"));
+            options.add(new OptionData(OptionType.USER, "user", "user to give point to")
+                    .setRequired(true));
             this.options = options;
         }
         @Override
@@ -127,9 +128,9 @@ public class EyeSpyCommands extends SlashCommand {
             this.help = "add a reward tier to eyespy";
             List<OptionData> options = new ArrayList<>();
             options.add(new OptionData(OptionType.INTEGER,
-                    "points", "number of points needed for this reward"));
+                    "points", "number of points needed for this reward").setRequired(true));
             options.add(new OptionData(OptionType.INTEGER,
-                    "ribbon_id", "ID of ribbon to give"));
+                    "ribbon_id", "ID of ribbon to give").setRequired(true));
             this.options = options;
             this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
         }
@@ -158,7 +159,7 @@ public class EyeSpyCommands extends SlashCommand {
             this.help = "remove an award";
             List<OptionData> options = new ArrayList<>();
             options.add(new OptionData(OptionType.INTEGER,
-                    "points", "points level you want to remove"));
+                    "points", "points level you want to remove").setRequired(true));
             this.options = options;
             this.userPermissions =  new Permission[] { Permission.ADMINISTRATOR };
         }

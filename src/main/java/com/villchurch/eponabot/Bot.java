@@ -3,6 +3,8 @@ package com.villchurch.eponabot;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.villchurch.eponabot.ContextMenus.PetContextMenu;
+import com.villchurch.eponabot.ContextMenus.ProfileContextMenu;
 import com.villchurch.eponabot.Listeners.ButtonListener;
 import com.villchurch.eponabot.slashcommands.*;
 import net.dv8tion.jda.api.JDA;
@@ -29,6 +31,8 @@ public class Bot {
         client.setOwnerId("272151652344266762");
         client.setActivity(Activity.playing("Eating ribbons"));
 //        client.forceGuildOnly("798239862477815819"); // for testing
+        client.addContextMenu(new ProfileContextMenu());
+        client.addContextMenu(new PetContextMenu());
         CommandClient commandClient = client.build();
 
         jda = JDABuilder.createLight(token, EnumSet.noneOf(GatewayIntent.class))
@@ -50,6 +54,7 @@ public class Bot {
         commands.add(new TagCommands());
         commands.add(new PetCommands());
         commands.add(new QuestionOfTheDayCommands());
+        commands.add(new AdminCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
