@@ -81,3 +81,11 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.qod (
     question text,
     posted BOOLEAN DEFAULT false
 );
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.movies (
+    id bigserial PRIMARY KEY,
+    movie text,
+    requestedby text,
+    watched BOOLEAN DEFAULT false,
+    genre text
+);

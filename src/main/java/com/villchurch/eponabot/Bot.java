@@ -56,6 +56,7 @@ public class Bot {
         commands.add(new PetCommands());
         commands.add(new QuestionOfTheDayCommands());
         commands.add(new AdminCommands());
+        commands.add(new MovieCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
