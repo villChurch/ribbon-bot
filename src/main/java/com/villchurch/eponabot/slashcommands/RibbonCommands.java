@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
@@ -36,10 +37,31 @@ public class RibbonCommands extends SlashCommand {
                 new ShowRibbon(),
                 new AllRibbons(),
                 new ResetUser(),
-                new GiveRibbonBulk()
+                new GiveRibbonBulk(),
+                new AssignRibbonBulk()
         };
     }
 
+    public static class AssignRibbonBulk extends SlashCommand {
+        public AssignRibbonBulk() {
+            this.name = "give_bulk_r";
+            this.help = "give multiple users a ribbon";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.INTEGER, "ribbon_id", "id of ribbon to give to users.")
+                    .setRequired(true));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            long ribbonId = Objects.requireNonNull(event.getOption("ribbon_id")).getAsLong();
+            event.reply("Choose the users to assign this ribbon to")
+                    .addActionRow(EntitySelectMenu.create("give-ribbon-" + ribbonId, EntitySelectMenu.SelectTarget.USER)
+                            .build())
+                    .setEphemeral(true).queue();
+        }
+    }
     public static class GiveRibbonBulk extends SlashCommand {
         public GiveRibbonBulk() {
             this.name = "give_bulk";

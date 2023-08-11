@@ -6,6 +6,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.villchurch.eponabot.ContextMenus.PetContextMenu;
 import com.villchurch.eponabot.ContextMenus.ProfileContextMenu;
 import com.villchurch.eponabot.Listeners.ButtonListener;
+import com.villchurch.eponabot.Listeners.EntitySelectMenuListener;
 import com.villchurch.eponabot.slashcommands.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -39,7 +40,7 @@ public class Bot {
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGE_REACTIONS,
                         GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.playing("Booting....."))
-                .addEventListeners(EponaBotApplication.eWaiter, new ButtonListener(), commandClient)
+                .addEventListeners(EponaBotApplication.eWaiter, new ButtonListener(), new EntitySelectMenuListener(), commandClient)
                 .build();
 
         jda.getGuilds().forEach(guild -> guild.updateCommands().queue());
