@@ -18,3 +18,5 @@ app.discord.bot.live.token=${DISCORD_BOT_TOKEN}
 app.discord.bot.test.token=${DISCORD_BOT_TOKEN_TEST}
 app.discord.live.qod.webhook=${WEBHOOK}
 app.discord.test.qod.webhook=${TEST_WEBHOOK}
+
+app.discord.live.qod.gandg.webhook=${SECOND_WEBHOOK}
