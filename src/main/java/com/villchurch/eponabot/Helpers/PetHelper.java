@@ -8,6 +8,7 @@ import com.villchurch.eponabot.models.PetsButtons;
 import com.villchurch.eponabot.models.Userpets;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,6 +25,8 @@ public class PetHelper {
 
     @Autowired
     PetButtonsRepository getPetButtonsRepository;
+
+    public static long randomPetId = 19;
 
     private static PetsRepository petsRepository;
 

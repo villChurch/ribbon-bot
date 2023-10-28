@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PetCommands extends SlashCommand {
 
@@ -39,7 +40,8 @@ public class PetCommands extends SlashCommand {
                 new DeSpawnPet(),
                 new DeletePet(),
                 new ReleasePet(),
-                new TradePet()
+                new TradePet(),
+                new SpawnRandomPet()
         };
     }
     @Override
@@ -168,6 +170,80 @@ public class PetCommands extends SlashCommand {
                 event.getHook().sendMessage(buttons.size() + " messages and button listeners removed.").queue();
             }
         }
+    }
+
+    public static class SpawnRandomPet extends SlashCommand {
+        public SpawnRandomPet() {
+            this.name = "spawn_random";
+            this.help = "Spawn a random pet";
+            this.userPermissions = new Permission[] { Permission.ADMINISTRATOR };
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.CHANNEL, "channel", "Channel to write spawn message in")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "pet_ids", "comma separated list of pet id's")
+                    .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "message", "Optional message to post with the pet spawn")
+                    .setRequired(true));
+            this.options = options;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            event.deferReply(true).queue();
+            String idsString = Objects.requireNonNull(event.getOption("pet_ids")).getAsString();
+            List<Integer> convertedPetIds = Stream.of(idsString.split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+            List<Long> validPetIds = new ArrayList<>();
+            convertedPetIds.forEach(id -> {
+                if (VerifyPetId(id)) {
+                    validPetIds.add((long)id);
+                }
+            });
+            if (validPetIds.isEmpty()) {
+                event.getHook().sendMessage("None of the id's you entered are valid pet id's.")
+                        .setEphemeral(true)
+                        .queue();
+            } else {
+                Pets randomPet = PetHelper.getPetById(PetHelper.randomPetId).get();
+                String message = Objects.requireNonNull(event.getOption("message")).getAsString();
+                MessageEmbed embed = new EmbedBuilder()
+                        .setTitle("A new pet has appeared!")
+                        .setDescription(message)
+                        .setImage(randomPet.getChildlink())
+                        .build();
+                var channel = Objects.requireNonNull(event.getOption("channel")).getAsChannel().asTextChannel();
+                event.getHook().sendMessage("Pet spawned!").setEphemeral(true).queue();
+                StringBuilder validPetIdsString = new StringBuilder();
+                for(int i = 0; i < validPetIds.size(); i++) {
+                    if (i + 1 == validPetIds.size()) {
+                        validPetIdsString.append(validPetIds.get(i));
+                    } else {
+                        validPetIdsString.append(validPetIds.get(i));
+                        validPetIdsString.append(",");
+                    }
+                }
+                channel.sendMessageEmbeds(embed)
+                        .addActionRow(
+                                Button.primary("random_pet" + validPetIdsString, "Claim")
+                        )
+                        .queue(message1 -> {
+                            PetsButtons petsButtons = new PetsButtons();
+                            petsButtons.setPetid(PetHelper.randomPetId);
+                            petsButtons.setButton("random_pet" + validPetIdsString);
+                            petsButtons.setMsgid(message1.getId());
+                            petsButtons.setChannelid(message1.getChannel().getId());
+                            petsButtons.setGuildid(message1.getGuild().getId());
+                            PetHelper.savePetButton(petsButtons);
+                        });
+            }
+        }
+    }
+
+    public static boolean VerifyPetId(Integer petId) {
+        Optional<Pets> optional = PetHelper.getPetById((long)petId);
+        return optional.isPresent();
     }
 
     public static class SpawnPet extends SlashCommand {
