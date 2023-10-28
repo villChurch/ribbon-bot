@@ -21,10 +21,12 @@ import java.util.stream.Collectors;
 public class QodScheduler {
 
     String qodWebhook;
+    String gandgQodWebHook;
 
     public QodScheduler(@Value("${app.discord.live.qod.webhook}")
-                        String getQodWebhook) {
+                        String getQodWebhook, @Value("${app.discord.live.qod.gandg.webhook}") String getGangQodWebHook) {
         this.qodWebhook = getQodWebhook;
+        this.gandgQodWebHook = getGangQodWebHook;
     }
 
     @Scheduled(cron = "0 0 20 * * ?", zone = "UTC")
@@ -63,5 +65,17 @@ public class QodScheduler {
         log.info("data =========> {}", data);
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
         restTemplate.postForEntity(qodWebhook, entity, String.class);
+        // send g&g qod
+        headers.set("User-Agent", "G&G_qod");
+        restTemplate = new RestTemplate();
+        requestJson = "{\n" +
+                "  \"username\":\"BumbleBot\",\n" +
+                "  \"avatar_url\":\"https://cdn.discordapp.com/attachments/745012634889355264/764883956729905172/bumblebutton.png\",\n" +
+                "  \"content\":\"" + data +"\"" +
+                "\n}";
+        log.info(requestJson);
+        log.info("data =========> {}", data);
+        entity = new HttpEntity<>(requestJson, headers);
+        restTemplate.postForEntity(gandgQodWebHook, entity, String.class);
     }
 }
