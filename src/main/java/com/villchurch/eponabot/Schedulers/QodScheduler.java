@@ -24,9 +24,9 @@ public class QodScheduler {
     String gandgQodWebHook;
 
     public QodScheduler(@Value("${app.discord.live.qod.webhook}")
-                        String getQodWebhook, @Value("${app.discord.live.qod.gandg.webhook}") String getGangQodWebHook) {
+                        String getQodWebhook, @Value("${app.discord.live.qod.gandg.webhook}") String getGandgQodWebHook) {
         this.qodWebhook = getQodWebhook;
-        this.gandgQodWebHook = getGangQodWebHook;
+        this.gandgQodWebHook = getGandgQodWebHook;
     }
 
     @Scheduled(cron = "0 0 20 * * ?", zone = "UTC")
@@ -51,31 +51,25 @@ public class QodScheduler {
         QodHelper.saveQod(randomQ);
         data = randomQ.getQuestion();
         log.info("Question is {}", data);
+        SendWebhook("Radishbooty_qod", "Radishbooty",
+                "https://cdn.discordapp.com/attachments/745012634889355264/1133485616571617370/radishbooty_2.png", data, qodWebhook);
+        SendWebhook("G&G_qod", "BumbleBot",
+                "https://cdn.discordapp.com/attachments/745012634889355264/764883956729905172/bumblebutton.png", data, gandgQodWebHook);
+    }
 
+    private void SendWebhook(String userAgent, String username, String avatarUrl, String data, String webHook) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("User-Agent", "Radishbooty_qod");
+        headers.set("User-Agent", userAgent);
         RestTemplate restTemplate = new RestTemplate();
         String requestJson = "{\n" +
-                "  \"username\":\"Radishbooty\",\n" +
-                "  \"avatar_url\":\"https://cdn.discordapp.com/attachments/745012634889355264/1133485616571617370/radishbooty_2.png\",\n" +
+                "  \"username\":\"" + username + "\",\n" +
+                "  \"avatar_url\":\""+ avatarUrl + "\",\n" +
                 "  \"content\":\"" + data +"\"" +
                 "\n}";
         log.info(requestJson);
         log.info("data =========> {}", data);
         HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
-        restTemplate.postForEntity(qodWebhook, entity, String.class);
-        // send g&g qod
-        headers.set("User-Agent", "G&G_qod");
-        restTemplate = new RestTemplate();
-        requestJson = "{\n" +
-                "  \"username\":\"BumbleBot\",\n" +
-                "  \"avatar_url\":\"https://cdn.discordapp.com/attachments/745012634889355264/764883956729905172/bumblebutton.png\",\n" +
-                "  \"content\":\"" + data +"\"" +
-                "\n}";
-        log.info(requestJson);
-        log.info("data =========> {}", data);
-        entity = new HttpEntity<>(requestJson, headers);
-        restTemplate.postForEntity(gandgQodWebHook, entity, String.class);
+        restTemplate.postForEntity(webHook, entity, String.class);
     }
 }
