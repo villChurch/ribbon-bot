@@ -184,6 +184,8 @@ public class PetCommands extends SlashCommand {
                     .setRequired(true));
             options.add(new OptionData(OptionType.STRING, "message", "Optional message to post with the pet spawn")
                     .setRequired(true));
+            options.add(new OptionData(OptionType.STRING, "image_link", "image link for pet egg")
+                    .setRequired(false));
             this.options = options;
         }
 
@@ -208,10 +210,14 @@ public class PetCommands extends SlashCommand {
             } else {
                 Pets randomPet = PetHelper.getPetById(PetHelper.randomPetId).get();
                 String message = Objects.requireNonNull(event.getOption("message")).getAsString();
+                String imageLink = randomPet.getChildlink();
+                if (event.hasOption("image_link")) {
+                    imageLink = event.getOption("image_link").getAsString();
+                }
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("A new pet has appeared!")
                         .setDescription(message)
-                        .setImage(randomPet.getChildlink())
+                        .setImage(imageLink)
                         .build();
                 var channel = Objects.requireNonNull(event.getOption("channel")).getAsChannel().asTextChannel();
                 event.getHook().sendMessage("Pet spawned!").setEphemeral(true).queue();
