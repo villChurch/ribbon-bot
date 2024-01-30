@@ -42,7 +42,7 @@ public class EyeSpyCommands extends SlashCommand {
         protected void execute(SlashCommandEvent slashCommandEvent) {
             EyeSpy eyeSpy = EyeSpyHelper.returnUsersEyeSpy(slashCommandEvent.getUser().getId());
             slashCommandEvent.reply("You currently have " + eyeSpy.getPoints() + " points")
-                    .setEphemeral(true)
+                    .setEphemeral(false)
                     .queue();
         }
     }
