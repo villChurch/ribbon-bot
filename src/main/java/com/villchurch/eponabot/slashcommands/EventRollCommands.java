@@ -31,7 +31,8 @@ public class EventRollCommands extends SlashCommand {
                 {
                         new AddEvent(),
                         new DeleteEvent(),
-                        new RollEvent()
+                        new RollEvent(),
+                        new ListEvents()
                 };
     }
     @Override
