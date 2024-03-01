@@ -89,3 +89,10 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.movies (
     watched BOOLEAN DEFAULT false,
     genre text
 );
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.eventRolls (
+    id bigserial PRIMARY KEY,
+    eventtype text,
+    event text,
+    eventoutput text
+);

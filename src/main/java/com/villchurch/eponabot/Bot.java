@@ -57,6 +57,7 @@ public class Bot {
         commands.add(new QuestionOfTheDayCommands());
         commands.add(new AdminCommands());
         commands.add(new MovieCommands());
+        commands.add(new EventRollCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
