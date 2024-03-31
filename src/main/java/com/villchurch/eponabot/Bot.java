@@ -58,6 +58,7 @@ public class Bot {
         commands.add(new AdminCommands());
         commands.add(new MovieCommands());
         commands.add(new EventRollCommands());
+        commands.add(new SayCommand());
         return commands.toArray(new SlashCommand[0]);
     }
 
