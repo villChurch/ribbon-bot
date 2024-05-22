@@ -96,3 +96,16 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.eventRolls (
     event text,
     eventoutput text
 );
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.users (
+    id bigserial PRIMARY KEY,
+    name text,
+    role text DEFAULT 'USER',
+    discordid text
+);
+
+CREATE TABLE IF NOT EXISTS eponaRibbon.userLink (
+    id bigserial PRIMARY KEY,
+    discordid text,
+    code text
+);
