@@ -78,9 +78,9 @@ public class MovieCommands extends SlashCommand {
         movies.forEach(movie -> {
             MessageEmbed embed = new EmbedBuilder()
                     .setTitle(movie.getMovie())
-                    .addField(new MessageEmbed.Field("Genre", movie.getGenre(), false))
+                    .addField(new MessageEmbed.Field("Genre", movie.getGenre()==null ? "Community" : movie.getGenre(), false))
                     .addField(new MessageEmbed.Field("watched", movie.isWatched() ? "Yes" : "No", false))
-                    .addField(new MessageEmbed.Field("Requested By", movie.getRequestedby(), false))
+                    .addField(new MessageEmbed.Field("Requested By", movie.getRequestedby()==null ? "Suggestion" : movie.getRequestedby(), false))
                     .build();
             embeds.add(embed);
         });
