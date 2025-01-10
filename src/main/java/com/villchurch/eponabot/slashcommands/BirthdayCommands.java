@@ -117,6 +117,7 @@ public class BirthdayCommands extends SlashCommand {
                 Birthday birthday = new Birthday();
                 birthday.setMonth(month);
                 birthday.setDay(day);
+                birthday.setUser(event.getUser().getId());
                 try {
                     BirthdayHelper.saveBirthday(birthday);
                     event.getHook().sendMessage("Your birthday has been added successfully").queue();
