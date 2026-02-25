@@ -109,3 +109,17 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.userLink (
     discordid text,
     code text
 );
+
+  CREATE TABLE IF NOT EXISTS eponaRibbon.Birthdays (
+    id bigserial PRIMARY KEY,
+    userid text NOT NULL,
+    monthI int NOT NULL,
+    dayI int NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS eponaRibbon.Config (
+    id bigserial PRIMARY KEY,
+    name text NOT NULL,
+    description text,
+    value text NOT NULL
+  );

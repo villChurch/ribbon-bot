@@ -60,6 +60,7 @@ public class Bot {
         commands.add(new EventRollCommands());
         commands.add(new WebsiteCommands());
         commands.add(new SayCommand());
+        commands.add(new BirthdayCommands());
         return commands.toArray(new SlashCommand[0]);
     }
 
