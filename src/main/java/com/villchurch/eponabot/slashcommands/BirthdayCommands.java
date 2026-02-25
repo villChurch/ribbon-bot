@@ -6,7 +6,6 @@ import com.jagrosh.jdautilities.menu.ButtonEmbedPaginator;
 import com.villchurch.eponabot.EponaBotApplication;
 import com.villchurch.eponabot.Helpers.BirthdayHelper;
 import com.villchurch.eponabot.models.Birthday;
-import com.villchurch.eponabot.models.Movies;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -101,7 +100,6 @@ public class BirthdayCommands extends SlashCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             event.deferReply().setEphemeral(false).queue();
-            String userId = event.getUser().getId();
             int month = Objects.requireNonNull(event.getOption("month")).getAsInt();
             int day = Objects.requireNonNull(event.getOption("day")).getAsInt();
             boolean valid = true;

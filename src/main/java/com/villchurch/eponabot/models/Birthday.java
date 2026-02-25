@@ -15,12 +15,12 @@ public class Birthday {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "user")
+    @Column(name = "userid")
     private String user;
 
-    @Column(name = "month")
+    @Column(name = "monthI")
     private Integer month;
 
-    @Column(name = "day")
+    @Column(name = "dayI")
     private Integer day;
 }

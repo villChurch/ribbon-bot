@@ -35,7 +35,7 @@ public class BirthdayScheduler {
     @Autowired
     ConfigRepository configRepository;
 
-    @Scheduled(cron = "0 0 13 * * ?", zone = "UTC")
+    @Scheduled(cron = "0 0 14 * * ?", zone = "UTC")
     public void PostBirthdays() {
         Instant date = Instant.now();
         Calendar calendar = Calendar.getInstance();
@@ -44,7 +44,7 @@ public class BirthdayScheduler {
         int day = calendar.get(Calendar.DATE);
         List<Birthday> allBirthdays = birthdayRepository.findAll();
         List<Birthday> todaysBirthdays =
-                allBirthdays.stream().filter(x -> x.getDay() == day && x.getMonth() == month).toList();
+                allBirthdays.stream().filter(x -> x.getDay() == day && x.getMonth() - 1 == month).toList();
         if(!todaysBirthdays.isEmpty()){
             todaysBirthdays.forEach(b -> SendBirthday(b.getUser()));
         }

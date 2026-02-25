@@ -112,9 +112,9 @@ CREATE TABLE IF NOT EXISTS eponaRibbon.userLink (
 
   CREATE TABLE IF NOT EXISTS eponaRibbon.Birthdays (
     id bigserial PRIMARY KEY,
-    user text NOT NULL,
-    month int NOT NULL,
-    day int NOT NULL
+    userid text NOT NULL,
+    monthI int NOT NULL,
+    dayI int NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS eponaRibbon.Config (

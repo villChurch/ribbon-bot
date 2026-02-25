@@ -22,11 +22,14 @@ public class QodScheduler {
 
     String qodWebhook;
     String gandgQodWebHook;
+    String teQodWebhook;
 
     public QodScheduler(@Value("${app.discord.live.qod.webhook}")
-                        String getQodWebhook, @Value("${app.discord.live.qod.gandg.webhook}") String getGandgQodWebHook) {
+                        String getQodWebhook, @Value("${app.discord.live.qod.gandg.webhook}") String getGandgQodWebHook,
+                        @Value("${app.discord.live.qod.te.webhook}") String getTeQodWebhook) {
         this.qodWebhook = getQodWebhook;
         this.gandgQodWebHook = getGandgQodWebHook;
+        this.teQodWebhook = getTeQodWebhook;
     }
 
     @Scheduled(cron = "0 0 20 * * ?", zone = "UTC")
@@ -55,6 +58,8 @@ public class QodScheduler {
                 "https://cdn.discordapp.com/attachments/745012634889355264/1133485616571617370/radishbooty_2.png", data, qodWebhook);
         SendWebhook("G&G_qod", "BumbleBot",
                 "https://cdn.discordapp.com/attachments/745012634889355264/764883956729905172/bumblebutton.png", data, gandgQodWebHook);
+        SendWebhook("TE_Qod", "The Daily Question",
+                "https://cdn.discordapp.com/attachments/745012634889355264/1410712472075374713/images.png", data, teQodWebhook);
     }
 
     private void SendWebhook(String userAgent, String username, String avatarUrl, String data, String webHook) {
